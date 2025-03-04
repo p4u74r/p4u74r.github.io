@@ -1,0 +1,228 @@
+1. Select * 
+from pedido 
+order by fecha desc
+
+2. select top 2 * from pedido order by total desc
+
+3. select distinct id_cliente from pedido
+
+4. select * from pedido 
+where total>'500' and fecha like '2017-%-%'
+
+5. select nombre, apellido1,apellido2 from comercial 
+where comision between '0,05' and '0,11'
+
+6. select MAX(comision) as 'Mayor comision' from comercial
+
+7. select id,nombre, apellido1 from cliente 
+where apellido2 is not null
+order by apellido1,nombre.
+
+8. Select nombre as 'Nombre_Cliente' from cliente 
+where nombre like 'a%n' or nombre like 'p%'
+order by nombre asc
+
+9. select nombre from cliente 
+where nombre not like 'a%'
+order by nombre
+
+10. Select distinct nombre from comercial 
+where nombre not like '%el' and nombre not like '%o'
+
+-Composicion interna-
+
+1. select  distinct cliente.nombre, cliente.apellido1, cliente.apellido2, cliente.id
+from cliente
+join pedido on cliente.id=pedido.id_cliente
+order by nombre
+
+2. Select * from pedido
+join cliente on cliente.id=pedido.id_cliente
+order by cliente.nombre
+
+3. Select comercial.*,*  from pedido
+join comercial on pedido.id_comercial=comercial.id
+order by comercial.nombre
+
+4. select *, pedido.*, comercial.* from  cliente 
+join pedido on cliente.id=pedido.id_cliente
+join comercial on pedido.id_comercial=comercial.id
+
+5. select * from cliente 
+join pedido on cliente.id=pedido.id_cliente
+where fecha like '2017-%-%' and total between '300' and '1000'
+
+6. select comercial.nombre as 'nombre_comercial', 
+comercial.apellido1 as 'apellido1_comercial', 
+comercial.apellido2 as 'apellido2_comercial' 
+from comercial 
+join pedido on comercial.id=pedido.id_comercial
+join cliente on cliente.id=pedido.id_cliente
+where cliente.nombre='María' and cliente.apellido1='Santana' 
+and cliente.apellido2='Moreno'
+
+7.select distinct cliente.nombre as 'nombre_cliente'
+from cliente 
+join pedido on cliente.id=pedido.id_cliente
+join comercial on comercial.id=pedido.id_comercial
+where comercial.nombre='Daniel' and comercial.apellido1='Sáez' 
+and comercial.apellido2='Vega'
+
+--Composición externa--
+
+1. select * from cliente 
+left join pedido on cliente.id=pedido.id_cliente
+order by cliente.nombre, cliente.apellido1, cliente.apellido2
+
+2. select * from comercial 
+left join pedido on comercial.id=pedido.id_comercial
+order by comercial.nombre, comercial.apellido1, comercial.apellido2
+
+3. select cliente.nombre from cliente 
+left join pedido on cliente.id=pedido.id_cliente
+where pedido.id is null
+order by cliente.nombre, cliente.apellido1, cliente.apellido2
+
+4.select comercial.nombre from comercial 
+left join pedido on comercial.id=pedido.id_comercial
+where pedido.id is null
+order by comercial.nombre, comercial.apellido1, comercial.apellido2
+
+5. select distinct cliente.nombre , cliente.apellido1, 'cliente' "tipo"
+from cliente 
+full outer join pedido on cliente.id=pedido.id_cliente
+where pedido.id is null
+union 
+select distinct  comercial.nombre, comercial.apellido1, 'comercial' "tipo"
+from comercial 
+full outer join pedido on comercial.id=pedido.id_comercial
+where pedido.id is null
+order by nombre, apellido1 desc
+
+6.
+
+--consultas resumen--
+1. Select SUM(total) as 'Total pedidos' from pedido
+
+2. Select AVG(total) as 'Total pedidos' from pedido
+
+3. Select  COUNT(distinct id_comercial)'Nº Comerciales' from pedido
+
+4. Select COUNT(distinct id) as 'Total clientes' from cliente
+
+5. Select MAX(total)as 'Mayor cantidad' from pedido
+
+6.Select Min(total)as 'Menor cantidad' from pedido
+
+7.select ciudad, MAX(categoría) as 'max_categoria'
+from cliente
+group by ciudad
+
+8.select cliente.id as id_cliente,cliente.nombre,
+cliente.apellido1,cliente.apellido2,
+pedido.fecha, MAX(pedido.total) as max_total
+from cliente
+join pedido on cliente.id = pedido.id_cliente
+group by pedido.fecha,cliente.id, cliente.nombre, 
+cliente.apellido1, cliente.apellido2 
+
+9 select 
+MAX(pedido.total) as 'max_total',pedido.fecha,cliente.id as id_cliente,
+cliente.nombre,cliente.apellido1,cliente.apellido2 
+from cliente
+JOIN pedido on cliente.id = pedido.id_cliente
+where pedido.total>'2000'
+group by pedido.fecha, cliente.id,
+cliente.nombre, cliente.apellido1, cliente.apellido2
+
+10.Select comercial.id, comercial.nombre,comercial.apellido1,comercial.apellido2
+,MAX(pedido.total)as 'total_pedido' from comercial
+join pedido on pedido.id_comercial = comercial.id
+where pedido.fecha='2016-08-17'
+group by comercial.id, comercial.nombre,comercial.apellido1,comercial.apellido2
+,pedido.total
+
+11. select cliente.id, cliente.nombre , cliente.apellido1, cliente.apellido2,
+COUNT(pedido.id) as 'pedidos_realizados'
+from cliente 
+left join pedido on cliente.id=pedido.id_cliente
+group by cliente.id, cliente.nombre,cliente.apellido1,cliente.apellido2
+,pedido.total
+
+12.select cliente.id, cliente.nombre , cliente.apellido1, cliente.apellido2,
+COUNT(pedido.id) as 'pedidos_realizados_2017'
+from cliente 
+left join pedido on cliente.id=pedido.id_cliente
+where pedido.fecha like '2017-%-%'
+group by cliente.id, cliente.nombre,cliente.apellido1,cliente.apellido2
+,pedido.total
+
+13. select cliente.id, cliente.nombre , cliente.apellido1, 
+ISNULL(MAX(pedido.total), 0) as 'pedidos_maximo'
+from cliente 
+left join pedido on cliente.id=pedido.id_cliente
+group by cliente.id, cliente.nombre,cliente.apellido1,cliente.apellido2
+,pedido.total
+
+14. Select YEAR(fecha) as 'año', MAX(pedido.total) as 'mayor_pedido'
+from pedido
+group by YEAR(fecha)
+
+15.Select YEAR(fecha) as 'año', Count(pedido.total) as 'pedidos_año'
+from pedido
+group by YEAR(fecha)
+
+--Subconsultas--
+1.Select pedido.id, pedido.fecha from pedido 
+where pedido.id_cliente=
+(select cliente.id from cliente 
+where nombre='Adela' and apellido1='Salas' and apellido2='Díaz')
+
+2.Select pedido.id, pedido.fecha from pedido 
+where pedido.id_comercial=
+(select comercial.id from comercial 
+where nombre='Daniel' and apellido1='Sáez' and apellido2='Vega')
+
+3. Select * from cliente 
+where id=(select pedido.id_cliente from pedido where total=
+(select Max(total) from pedido where year(pedido.fecha)='2019'))
+
+4.Select fecha, total from pedido 
+where id_cliente=(
+select id from cliente where nombre='Pepe' and apellido1='Ruiz' and apellido2='Santana')  
+and total=
+(select min(total) from pedido 
+where id_cliente=
+(select id from cliente where nombre='Pepe' and apellido1='Ruiz' and apellido2='Santana'))
+
+
+5. select c.*, p.* 
+from cliente c, pedido p 
+where c.id = p.id_cliente
+and year(fecha) = '2017' 
+and p.total >= (select avg(total) from pedido 
+where year(fecha) = '2017')
+
+6. select * from pedido
+where total>=All(select total from pedido)
+
+7. Select * from cliente 
+where id <> all (select id_cliente from pedido)
+
+8.Select * from comercial 
+where id <> all (select id_comercial from pedido)
+
+9.Select * from cliente 
+where id not in (select id_cliente from pedido)
+
+10.Select * from comercial 
+where id not in(select id_comercial from pedido)
+
+11.select * from cliente
+where NOT EXISTS 
+(select 1 from pedido where pedido.id_cliente = cliente.id)
+
+12. select * 
+from comercial
+where NOT EXISTS 
+(select 1 from pedido where pedido.id_comercial = comercial.id)
